@@ -1,0 +1,8 @@
+username: admin
+password: Netapp1!
+cluster_hostname: 192.168.0.101
+
+qtree: qtree1
+vserver: nassvm
+volume: vol1
+# no need to delete quota if exist, it will delete all quota rules apply to this qtree

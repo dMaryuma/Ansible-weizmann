@@ -1,0 +1,73 @@
+---
+# Ensure that the NetApp Ansible collection is deployed by running ansible-galaxy collection install netapp.ontap
+- hosts: localhost
+  collections:
+    - netapp.ontap
+  gather_facts: no
+  vars:
+    login: &login
+      username: "{{ username }}"
+      password: "{{ password }}"
+      hostname: "{{ cluster_hostname }}"
+      https: true
+      validate_certs: false
+  tasks:
+  - name: Create File Directory Security Descriptor
+    netapp.ontap.na_ontap_rest_cli:
+      command: vserver/security/file-directory/ntfs
+      verb: POST
+      body:
+        vserver: "{{ vserver }}"
+        ntfs-sd: "{{ ntfs_sd }}"
+      <<: *login
+    register: ntfs_sd_result
+    failed_when: >
+      ntfs_sd_result.failed and
+      ('duplicate entry' not in ntfs_sd_result.msg)
+
+  - name: Add NTFS Security Permission entries
+    na_ontap_command:
+      command: "vserver security file-directory ntfs dacl add -ntfs-sd {{ ntfs_sd }} -vserver {{ vserver }} -access-type {{ item.access }} -account {{ item.user }} -rights {{ item.rights }} -apply-to {{ item.apply_to }}"
+      privilege: 'advanced'
+      <<: *login
+    loop: "{{ ntfs_permission }}"
+
+  - name: Create File Directory Security Policy Task
+    netapp.ontap.na_ontap_fdspt:
+      state: present
+      name: "{{ policy_name }}"
+      vserver: "{{ vserver }}"
+      access_control: "file_directory"
+      ntfs_sd: "{{ ntfs_sd }}"
+      ntfs_mode: "{{ ntfs_mode }}"
+      path: "{{ path }}"
+      <<: *login
+
+  - name: Apply File Directory Task
+    netapp.ontap.na_ontap_fdss:
+      state: present
+      vserver: "{{ vserver }}"
+      name: "{{ policy_name }}"
+      <<: *login
+
+  - name: Wait for task to complete...
+    pause:
+      seconds: 5
+
+# ## last task delete the policy and task
+  - name: Delete File Directory Policy along with the tasks
+    netapp.ontap.na_ontap_file_directory_policy:
+      state: absent
+      vserver: "{{ vserver }}"
+      policy_name: "{{ policy_name }}"
+      <<: *login
+
+  - name: Delete File Directory Security Descriptor
+    netapp.ontap.na_ontap_rest_cli:
+      command: vserver/security/file-directory/ntfs
+      verb: DELETE
+      body:
+        vserver: "{{ vserver }}"
+        ntfs-sd: "{{ ntfs_sd }}"
+      <<: *login
+    register: ntfs_sd_result

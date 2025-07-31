@@ -1,0 +1,25 @@
+---
+# Ensure that the NetApp Ansible collection is deployed by running ansible-galaxy collection install netapp.ontap
+- hosts: localhost
+  collections:
+    - netapp.ontap
+  gather_facts: no
+  vars:
+    login: &login
+      username: "{{ username }}"
+      password: "{{ password }}"
+      hostname: "{{ cluster_hostname }}"
+      https: true
+      validate_certs: false
+  tasks:
+  - name: Create/Modify/Resize Quota Rule
+    netapp.ontap.na_ontap_quotas:
+      state: present
+      vserver: "{{ vserver }}"
+      volume: "{{ volume }}"
+      quota_target: "{{ quota_target }}"
+      type: "{{ type }}"
+      file_limit: "{{ file_limit | default(omit) }}"
+      disk_limit: "{{ disk_limit | default(omit) }}"
+      use_rest: always
+      <<: *login

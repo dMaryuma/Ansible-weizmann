@@ -1,0 +1,23 @@
+---
+# Ensure that the NetApp Ansible collection is deployed by running ansible-galaxy collection install netapp.ontap
+- hosts: localhost
+  collections:
+    - netapp.ontap
+  gather_facts: no
+  vars:
+    login: &login
+      username: "{{ username }}"
+      password: "{{ password }}"
+      hostname: "{{ cluster_hostname }}"
+      https: true
+      validate_certs: false
+  tasks:
+  - name: Create/Modify Qtree
+    netapp.ontap.na_ontap_qtree:
+      state: present
+      name: "{{ qtree }}"
+      flexvol_name: "{{ volume }}"
+      vserver: "{{ vserver }}"
+      security_style: "{{ security_style }}"
+      export_policy: "{{ export_policy }}"
+      <<: *login

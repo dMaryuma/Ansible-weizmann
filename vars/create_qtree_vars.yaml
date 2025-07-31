@@ -1,0 +1,9 @@
+username: admin
+password: Netapp1!
+cluster_hostname: 192.168.0.101
+
+qtree: qtree2
+vserver: nassvm
+volume: vol1
+export_policy: default
+security_style: ntfs

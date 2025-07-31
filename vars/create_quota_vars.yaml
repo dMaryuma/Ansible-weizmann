@@ -1,0 +1,12 @@
+## No need to run 'quota resize' it will run automatically
+username: admin
+password: Netapp1!
+cluster_hostname: 192.168.0.101
+
+vserver: nassvm
+volume: vol1
+quota_target: qtree1
+type: tree
+file_limit: 2000 # skip if not declare
+disk_limit: 3GB #skip if not declare , can be MB, GB, TB
+

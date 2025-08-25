@@ -22,4 +22,5 @@
       file_limit: "{{ file_limit | default(omit) }}"
       disk_limit: "{{ disk_limit | default(omit) }}"
       use_rest: always
+      set_quota_status: true
       <<: *login

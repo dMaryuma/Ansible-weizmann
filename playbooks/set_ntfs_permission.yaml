@@ -28,7 +28,7 @@
   - name: Add NTFS Security Permission entries
     na_ontap_command:
       command: "vserver security file-directory ntfs dacl add -ntfs-sd {{ ntfs_sd }} -vserver {{ vserver }} -access-type {{ item.access }} -account {{ item.user }} -rights {{ item.rights }} -apply-to {{ item.apply_to }}"
-      privilege: 'advanced'
+      privilege: 'admin'
       <<: *login
     loop: "{{ ntfs_permission }}"
 

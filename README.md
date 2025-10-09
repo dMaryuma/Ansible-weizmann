@@ -13,3 +13,17 @@ run every playbook with corresponding vars file, example:
 ansible-playbook set_ntfs_permission.yaml -e@set_ntfs_permission_vars.yaml
 ansible-playbook create_qtree.yaml -e @create_qtree_vars.yaml
 ```
+### NetApp Custom Role
+you can create custom role for that specific scenario
+#### create role
+```
+cluster1::> security login role create -role ansible-role -cmddirname "volume qtree" -access all
+security login role create -role ansible-role -cmddirname "volume quota" -access all
+security login role create -role ansible-role -cmddirname "vserver security file-directory" -access all
+security login role modify -role ansible-role -cmddirname DEFAULT -access readonly
+```
+#### create user with role
+```
+security login create -user-or-group-name ansible-user -application http -authentication-method password -role ansible-role
+security login create -user-or-group-name ansible-user -application ontapi -authentication-method password -role ansible-role
+```

@@ -1,4 +1,4 @@
-username: admin
+username: ansible
 password: password
 cluster_hostname: 192.168.0.1
 
@@ -6,26 +6,25 @@ vserver: nassvm
 policy_name: fd_policy1
 ntfs_sd: "desc1"
 ntfs_mode: propagate #'propagate' to add permission without replace existing set. 'replace' to replace existing if inheritance disabled, ''
-path: /vol1/qtree2
+path: /vol1/qtree1
 ntfs_permission:
-  - user: "demo\\administrator"
-    access: allow
-    rights: full-control
-    apply_to: "files,sub_folders,this_folder"
-  - user: "demo\\daniel2"
-    access: allow
-    rights: read
-    apply_to: "files,sub_folders,this_folder"
-
+  - access_type: allow
+    user: "demo\\administrator"
+    rights: full_control
+    apply_to: ["files", "sub_folders", "this_folder"]
+  - access_type: allow
+    user: "demo\\user1"
+    rights: modify
+    apply_to: ["files", "sub_folders", "this_folder"]
 
 ### Map Choices ###
 #rights:
-  # no-access
-  # full-control
-  # modify
-  # read-and-execute
-  # read
-  # write
+# no_access
+# full_control
+# modify
+# read_and_execute
+# read
+# write
 
 #acl.access
 # "allow"

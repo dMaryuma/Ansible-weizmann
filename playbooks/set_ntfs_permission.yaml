@@ -13,23 +13,23 @@
       validate_certs: false
   tasks:
   - name: Create File Directory Security Descriptor
-    netapp.ontap.na_ontap_rest_cli:
-      command: vserver/security/file-directory/ntfs
-      verb: POST
-      body:
-        vserver: "{{ vserver }}"
-        ntfs-sd: "{{ ntfs_sd }}"
+    netapp.ontap.na_ontap_fdsd:
+      state: present
+      name: "{{ ntfs_sd }}"
+      vserver: "{{ vserver }}"
       <<: *login
-    register: ntfs_sd_result
-    failed_when: >
-      ntfs_sd_result.failed and
-      ('duplicate entry' not in ntfs_sd_result.msg)
 
-  - name: Add NTFS Security Permission entries
-    na_ontap_command:
-      command: "vserver security file-directory ntfs dacl add -ntfs-sd {{ ntfs_sd }} -vserver {{ vserver }} -access-type {{ item.access }} -account {{ item.user }} -rights {{ item.rights }} -apply-to {{ item.apply_to }}"
-      privilege: 'admin'
+  - name: Add NTFS DACL entries to Security Descriptor
+    netapp.ontap.na_ontap_ntfs_dacl:
+      state: present
+      vserver: "{{ vserver }}"
+      security_descriptor: "{{ ntfs_sd }}"
+      access_type: "{{ item.access_type }}"
+      account: "{{ item.user }}"
+      rights: "{{ item.rights }}"
+      apply_to: "{{ item.apply_to }}"
       <<: *login
+      use_rest: always
     loop: "{{ ntfs_permission }}"
 
   - name: Create File Directory Security Policy Task
@@ -54,7 +54,7 @@
     pause:
       seconds: 5
 
-# ## last task delete the policy and task
+### last task delete the policy and task
   - name: Delete File Directory Policy along with the tasks
     netapp.ontap.na_ontap_file_directory_policy:
       state: absent
@@ -63,11 +63,8 @@
       <<: *login
 
   - name: Delete File Directory Security Descriptor
-    netapp.ontap.na_ontap_rest_cli:
-      command: vserver/security/file-directory/ntfs
-      verb: DELETE
-      body:
-        vserver: "{{ vserver }}"
-        ntfs-sd: "{{ ntfs_sd }}"
+    netapp.ontap.na_ontap_fdsd:
+      state: absent
+      name: "{{ ntfs_sd }}"
+      vserver: "{{ vserver }}"
       <<: *login
-    register: ntfs_sd_result
